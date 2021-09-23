@@ -1,3 +1,4 @@
+import sys
 import numpy
 from keras.models import load_model, Sequential
 from keras.datasets import cifar10
@@ -7,6 +8,10 @@ import random
 
 
 def model_load(model_name: str):
+    """
+    Loads the specified model
+    """
+
     print("Loading the model...")
     model = load_model(model_name)
 
@@ -23,6 +28,10 @@ def model_load(model_name: str):
     return model
 
 def process_data(model):
+    """
+    Loads the CIFAR 10 dataset and processes it to the correct shapes
+    """
+
     print("Loading and processing the train/test data...")
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
     x_train, x_test = x_train.astype('float32') / 255.0, x_test.astype('float32') / 255.0
@@ -44,6 +53,10 @@ def process_data(model):
     return x_test, y_test
 
 def predict_new(model, x_test, y_test):
+    """
+    Predicts the contents of x_test using the model
+    """
+
     for x in x_test:
         x = x.reshape(1, 32, 32, 3)
 
@@ -53,6 +66,10 @@ def predict_new(model, x_test, y_test):
     return x_test, y_test
 
 def get_classes():
+    """
+    Function to get the classes of the CIFAR 10 dataset
+    """
+
     classes =   {
                     0: 'plane',
                     1: 'car',
@@ -69,6 +86,12 @@ def get_classes():
     return classes
 
 def random_classification(classes, x_test, y_test, pure):
+    """
+    Picks and classifies a random picture
+    If pure is true, the picture chosen is random from the set of all pictures
+    If pure is false, the picture chosen is of the specified class
+    """
+
     rand_num = random.randint(0, len(x_test) - 1)
 
     if pure:
@@ -80,6 +103,10 @@ def random_classification(classes, x_test, y_test, pure):
     pyplot.show()
 
 def get_class_option(classes):
+    """
+    Gets the user input for a specified class of the CIFAR 10 dataset
+    """
+
     for item in classes:
         print("    " + classes[item])
 
@@ -97,10 +124,18 @@ def get_class_option(classes):
     return choice_key, choice_val
 
 def number_classifications(classes, y_test):
+    """
+    Gets the number of pictures classified as a specified class
+    """
+
     choice_key, choice_val = get_class_option(classes)
     print("There are " + str(list(y_test).count(choice_key)) + " pictures classified as " + choice_val)
 
 def selected_class_random_image(classes, x_test, y_test):
+    """
+    Creates a new set of data consisting of only the specified class
+    """
+
     choice_key, choice_val = get_class_option(classes)
     new_x_test, new_y_test = [], []
     for index in range(len(x_test)):
@@ -111,6 +146,10 @@ def selected_class_random_image(classes, x_test, y_test):
     random_classification(classes, new_x_test, new_y_test)
 
 def get_run_choice():
+    """
+    Gets the user input for the main menu
+    """
+
     while True:
         try:
             choice = int(input("Please enter your choice: "))
@@ -124,6 +163,10 @@ def get_run_choice():
     return choice
 
 def run(classes, x_test, y_test):
+    """
+    Runs the main program
+    """
+
     while True:
         print("What would you like to do? Options are:")
         print("    1: Get a random image and its classification from the test set")
@@ -142,11 +185,15 @@ def run(classes, x_test, y_test):
             break
 
 def main():
-    model = model_load('model.h5')
-    x_test, y_test = process_data(model)
-    x_test, y_test = predict_new(model, x_test, y_test)
-    classes = get_classes()
-    run(classes, x_test, y_test)
+    if len(sys.argv) != 2:
+        print("Please enter the filename as the first and only argument when running the file")
+        print("Include the .h5 extension")
+    else:
+        model = model_load(sys.argv[1])
+        x_test, y_test = process_data(model)
+        x_test, y_test = predict_new(model, x_test, y_test)
+        classes = get_classes()
+        run(classes, x_test, y_test)
     
 
 if __name__ == "__main__":
